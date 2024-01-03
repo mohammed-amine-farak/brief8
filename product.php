@@ -15,7 +15,7 @@
     private $code_a_barres;
     private $offre_de_prix;
     private $quantite_min;		
-
+    
     public function __construct($id, $name, $old_price, $new_price, $image, $stock, $category, $status, $code_a_barres, $offre_de_prix, $quantite_min)
 {
     $this->id = $id;

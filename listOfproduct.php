@@ -1,6 +1,6 @@
 
 <?php
-
+session_start();
 require_once 'productDAO.php';
 $productDAO = new produitDAO();
 $products = $productDAO->get_product();
@@ -24,12 +24,11 @@ if (isset($_GET['see'])){
   
 
 
-// $_SESSION['selctedid'] = '';
-
-// if(isset($_GET['update'])){
-//   $_SESSION['selctedid'] = $_GET['update'];
-//   header('location:updateproduct.php');
-// }
+ $_SESSION['selctedid'] = '';
+ if(isset($_GET['update'])){
+  $_SESSION['selctedid'] = $_GET['update'];
+  header('location:updateproduct.php');
+}
 
 // if(isset($_GET['see'])){
 //   $get_data = "SELECT status FROM product WHERE id = '%{$_GET['see']}%'";

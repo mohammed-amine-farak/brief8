@@ -1,41 +1,19 @@
 <?php
-session_start();
-
-$data = mysqli_connect('localhost', 'root', '', 'elctro');  
-
-$persone = "SELECT * FROM person";
-$query = mysqli_query($data, $persone);
+// session_start();
+include 'userDAO.php';
+$usersDAO = new usersDAO;
+$getusers = $usersDAO->get_Users();
 
 
-if (isset($_GET['add'])) {
-   
-    
-    $selctid = $_GET['add'];
-    $get = "SELECT * FROM person WHERE Id LIKE '%$selctid%'";
-    $scondquery = mysqli_query($data, $get);
-    while($selected = mysqli_fetch_assoc($scondquery)){
-        $name = $selected['name'];  
-        $password = $selected['passworde'];
-        $id = $selected['Id'];
-        $email = $selected['email'];
-        mysqli_query($data, "INSERT INTO utilisateur(passworde,email,name) VALUES ('$password', '$email','$name')");
-        mysqli_query($data, "DELETE FROM person WHERE Id='$id';");
-        }
-
-    header('location: '.$_SERVER['PHP_SELF']);
-}
-
-if (isset($_GET['delete'])) {
-    $selctid = $_GET['delete'];
-
-    
-        mysqli_query($data, "DELETE FROM person WHERE Id='$selctid'");
-        header('location: '.$_SERVER['PHP_SELF']);
-
-    }
-    
-
-
+// if ($_SERVER["REQUEST_METHOD"] === "POST") {
+//     if (isset($_POST['send'])) {
+//         $id = $_POST['send'];
+//         if (isset($_POST['selectOption'])) {
+//             $selectedValues = $_POST['selectOption'];
+//             $usersDAO->chang_type_to_user($id, $selectedValues);
+//         }
+//     }
+// }
 ?>
 
 
@@ -88,52 +66,52 @@ if (isset($_GET['delete'])) {
                 <th scope="col" class="px-6 py-3">
                 email
                 </th>
-               <th scope="col" class="px-6 py-3">
-                add
-                </th>
                 <th scope="col" class="px-6 py-3">
-                dont add
+                type
                 </th>
+               <th scope="col" class="px-6 py-3">
+                change etat
+                </th>
+               
                 
                
             </tr>
         </thead>
         <tbody>
         <?php
-      $data = mysqli_connect('localhost', 'root', '', 'elctro'); 
-      $get_data = "SELECT * FROM person";
-      $query = mysqli_query($data,$get_data);
-      while($row = mysqli_fetch_assoc($query)){
-        $name = $row['name'];  
-        $id = $row['Id'];
-        $email = $row['email'];
-         ?>
-       
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                 <?=$name?>
-                </th>
-                <td class="px-6 py-4">
-                <?=$email?>
+foreach ($getusers as $u) {
+?>
+    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+        <td class="px-6 py-4">
+            <?=$u->getUsername()?>
                 </td>
-                
+        <td class="px-6 py-4">
+            <?=$u->getEmail()?>
+        </td>
+        <td class="px-6 py-4">
+            <?=$u->getType()?>
+        </td>
+        
+        <td class="px-6 py-4">
+       
+        <form method="POST">
+    <select name="selectOption">
+        <option value="unverified">unverified</option>
+        <option value="user">user</option>
+        <option value="admin">admin</option>
+    </select>
+    <button value="<?= $u->getId() ?>" class="bg-blue-500 text-white px-4 py-2 rounded-md" name="send" type="submit">Submit</button>
+</form>
 
-              
-               <td class="px-6 py-4">
-                <form methode = 'GET'>
-                  <button class="bg-blue-500 text-white px-4 py-2 rounded-md "  name ="add" value = "<?=$id?>">add</button>
-                </form>
-               </td>
-               <td class="px-6 py-4">
-                <form methode = 'GET'>
-                  <button class="bg-blue-500 text-white px-4 py-2 rounded-md "  name ="delete" value = "<?=$id?>">delet</button>
-                </form>
-               </td>
-            </tr>
-            
-            <?php
-      }
-            ?>
+             <!-- ('unverified', 'user', 'admin') -->
+        </td>
+        
+    </tr>
+
+<?php
+}
+?>
+
         </tbody>
     </table>
     <button type="submit" class="inline-flex ml-[100px] bg-slate-900 items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800">

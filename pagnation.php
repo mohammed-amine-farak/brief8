@@ -1,7 +1,20 @@
 <?php
- require_once 'productDAO.php';
- $book = new BookDAO();
- $books = $book->get_books();
+session_start();
+require_once 'productDAO.php';
+$productDAO = new produitDAO();
+$products = $productDAO->get_product();
+
+
+
+require_once 'commandeDAO.php';
+$commandeDAO = new commandeDAO();
+
+
+if(isset($_GET['cart'])){
+     $id= $_GET['cart'];
+    $commandeDAO->add_Commande($id);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -75,69 +88,56 @@
 </form>
 
 <?php
-       $sql = "SELECT * FROM product WHERE category IN (SELECT name FROM category WHERE statu = 'yes') and status = 'yes'";
+      //  $sql = "SELECT * FROM product WHERE category IN (SELECT name FROM category WHERE statu = 'yes') and status = 'yes'";
 
-       if(isset($_GET['sendcategory'])){
-        $select = $_GET['category'];
-        if($select == 'all'){
+      //  if(isset($_GET['sendcategory'])){
+      //   $select = $_GET['category'];
+      //   if($select == 'all'){
           
-          $sql = "SELECT * FROM product WHERE category IN (SELECT name FROM category WHERE statu = 'yes') and status = 'yes'";
-        }
-        else{
+      //     $sql = "SELECT * FROM product WHERE category IN (SELECT name FROM category WHERE statu = 'yes') and status = 'yes'";
+      //   }
+      //   else{
          
-          $sql = "SELECT * FROM product WHERE category IN (SELECT name FROM category WHERE statu = 'yes') and status = 'yes' and category like '$select'";
+      //     $sql = "SELECT * FROM product WHERE category IN (SELECT name FROM category WHERE statu = 'yes') and status = 'yes' and category like '$select'";
 
-        }
+      //   }
         
         
-       }
-       if(isset($_GET['send'])){
-        $prix_start =  $_GET['prix_start'];
-        $prix_end = $_GET['prix_end'];
+      //  }
+      //  if(isset($_GET['send'])){
+      //   $prix_start =  $_GET['prix_start'];
+      //   $prix_end = $_GET['prix_end'];
        
-        $sql = "SELECT * FROM product WHERE category IN (SELECT name FROM category WHERE statu = 'yes')
-         and status = 'yes' and new_price >= $prix_start and new_price <= $prix_end";
-      }
-      if(isset($_GET['send']) && isset($_GET['sendcategory'])){
-        $prix_start =  $_GET['prix_start'];
-        $prix_end = $_GET['prix_end'];
+      //   $sql = "SELECT * FROM product WHERE category IN (SELECT name FROM category WHERE statu = 'yes')
+      //    and status = 'yes' and new_price >= $prix_start and new_price <= $prix_end";
+      // }
+      // if(isset($_GET['send']) && isset($_GET['sendcategory'])){
+      //   $prix_start =  $_GET['prix_start'];
+      //   $prix_end = $_GET['prix_end'];
        
-      $sql = "SELECT * FROM product WHERE category IN (SELECT name FROM category WHERE statu = 'yes')
-       and status = 'yes' and new_price >= $prix_start and new_price <= $prix_end and category like '$select'";
-      }
+      // $sql = "SELECT * FROM product WHERE category IN (SELECT name FROM category WHERE statu = 'yes')
+      //  and status = 'yes' and new_price >= $prix_start and new_price <= $prix_end and category like '$select'";
+      // }
 
 
        ?>
     <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
     <?php
-      $proPerpage = 3;
-      $totalOfproduct = mysqli_num_rows($query);
     
-      $numberOfpages = ceil($totalOfproduct/$proPerpage);
-      
-      $currentPage = isset($_GET['page']) ? $_GET['page'] : 1;
-     
-      
-      $offset = ($currentPage - 1) * $proPerpage;
-      $sql .= " LIMIT $offset, $proPerpage";
-       $query = mysqli_query($data,$sql);
-       
-       while($row = mysqli_fetch_assoc($query)){
-         $image = $row['image'];
-         $name = $row['name'];
-    
-         $category = $row['category'];
-      
-         $new_price = $row['new_price'];
-         $stock = $row['stock'];
-        
+    foreach($products as $pro){
          ?>
          <a href="#" class="group">
         <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-          <img src="img/<?=$image?>" alt="Tall slender porcelain bottle with natural clay textured body and cork stopper." class="h-[200px] w-[400px] object-cover object-center group-hover:opacity-75">
+          <img src="img/<?=$pro->getImage()?>" alt="Tall slender porcelain bottle with natural clay textured body and cork stopper." class="h-[200px] w-[400px] object-cover object-center group-hover:opacity-75">
         </div>
-        <h3 class="mt-4 text-sm text-gray-700"><?=$name?></h3>
-        <p class="mt-1 text-lg font-medium text-gray-900"><?=$new_price?></p>
+        <h3 class="mt-4 text-sm text-gray-700"><?=$pro->getName()?></h3>
+        <p class="mt-1 text-lg font-medium text-gray-900"><?=$pro->getNew_price()?></p>
+        <form  method= "GET">
+          
+          <button name = "cart" value = '<?=$pro->getId()?>' class="inline-flex bg-slate-900 items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800" onclick="addProduct()">Add Another Product</button>
+        </form>
+
+
       </a>
        <?php
        }
@@ -150,30 +150,7 @@
      
     </div>
   </div>
-  <div class ="w-[100%] h-[200px] flex flex-row justify-center  items-center "><div class="py-2">
-       <nav class="block">
-
-         <ul class="flex pl-0 ml-[20px] rounded list-none flex-wrap">
-         <?php
-       for($i = 1;$i<=$numberOfpages;$i++){
-            ?>
-                 
-             <li>
-              <a href="?page=<?=$i?>" class="first:ml-0 text-xs font-semibold flex w-8 h-8 mx-1 p-0 rounded-full items-center justify-center leading-tight relative border border-solid border-pink-500 bg-gray-500 text-pink-500">
-               <?=$i?>
-              </a>
-             </li>
-         
-          <?php
-       }
-       ?>
-          
-           
-         </ul>
-       </nav>
-     </div> </div>
-  
-</div>
+ 
 
 </body>
 </html>

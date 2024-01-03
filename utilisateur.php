@@ -5,7 +5,7 @@ $persone = "SELECT * FROM person";
 $query = mysqli_query($data, $persone);
 
 
-if (isset($_GET['admine'])) {
+if (isset($_GET['admine'])) {   
    
 
     $selctid = $_GET['admine'];
